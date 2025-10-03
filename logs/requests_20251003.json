@@ -116,5 +116,60 @@
     },
     "final_answer": "AI agents are autonomous systems designed to perceive their environment and take actions to achieve specific goals. They differentiate themselves from traditional software by their ability to learn from experience, adapt to new situations, make decisions based on context, and interact naturally with users.",
     "timestamp": "2025-10-03T15:40:52.156748"
+  },
+  {
+    "query": "What is present inside it",
+    "decision": {
+      "agents": [
+        "PDF_RAG"
+      ],
+      "rationale": "The user is asking about the content of 'it' and a PDF has been uploaded, strongly implying 'it' refers to the uploaded PDF document. Thus, the PDF_RAG agent is needed to analyze the PDF content.",
+      "priority": "PDF_RAG"
+    },
+    "agents_used": [
+      "PDF_RAG"
+    ],
+    "agent_responses": {
+      "PDF_RAG": {
+        "answer": "The documents do not specify what \"it\" refers to, so I cannot answer what is present inside it.",
+        "sources": [
+          "nebulabyte_rag_systems.pdf",
+          "Vishal_Golhar_CL.pdf",
+          "nebulabyte_vector_databases.pdf"
+        ],
+        "retrieved_docs": [
+          {
+            "id": 1,
+            "source": "nebulabyte_rag_systems.pdf",
+            "chunk_id": 0,
+            "text": "--- Page 1 --- NebulaByte: Retrieval-Augmented Generation NebulaByte RAG Systems Documentation Understanding RAG Retrieval-Augmented Generation (RAG) is a technique that enhances LLMs by providing them with relevant external knowledge. This approach combines the benefits of: - Large language models' natural language understanding - External knowledge bases for factual accuracy - Real-time information retrieval RAG Architecture: 1. Document Ingestion: Convert documents to text 2. Chunking: Break text into manageable pieces 3. Embedding: Convert chunks to vector representations 4. Indexing: Store embeddings in a vector database 5. Retrieval: Find relevant chunks for queries 6. Generation: Use LLM to generate answers Benefits: - Improved factual accuracy - Reduced hallucinations - Domain-specific knowledge - Up-to-date information - Cost-effective compared to fine-tuning Implementation Strategies: Use FAISS or Chroma for vector storage, sentence-transformers for embeddings, and GPT or Claude for generation. Consider chunk size, overlap, and retrieval strategies.",
+            "metadata": {
+              "category": "NebulaByte"
+            },
+            "distance": 1.2790358066558838
+          },
+          {
+            "id": 5,
+            "source": "Vishal_Golhar_CL.pdf",
+            "chunk_id": 0,
+            "text": "--- Page 1 --- Vishal Golhar Nagpur, Maharashtra, India +91 8421236102 | vishalgolhar10@gmail.com Hiring Manager Wipro Limited Hyderabad, Telangana, India Subject: Application for Developer Role (Req Id: 100326) Dear Hiring Manager, I am writing to express my keen interest in the Developer role at Wipro. With hands-on experience in Python, SQL, Azure Data Factory, and full-stack development, I bring a strong foundation in building scalable applications, optimizing data pipelines, and delivering high-quality software aligned with client requirements. During my internships with EY and AICTE-Shell, I developed end-to-end projects involving ETL processes, dashboards, and automation workflows, where I gained experience in coding, debugging, and documentation across the software development lifecycle. My project on HR Data Analytics Dashboard (Power BI) is a key example of integrating multiple data sources into a streamlined reporting system, improving decision- making efficiency by 25%. At Wipro, I am particularly excited about contributing to projects that require designing, testing, and deploying client-facing applications while ensuring reliability and performance. My technical expertise, combined with strong problem-solving, documentation, and collaboration skills, positions me to add value to your team and deliver solutions with measurable impact. I would be grateful for the opportunity to discuss how my skills and experiences align with the Developer position at Wipro. Thank you for considering my application, and I look forward to contributing to Wipro\u2019s vision of driving innovation and digital transformation. Sincerely, Vishal Golhar",
+            "metadata": {},
+            "distance": 1.3031806945800781
+          },
+          {
+            "id": 2,
+            "source": "nebulabyte_vector_databases.pdf",
+            "chunk_id": 0,
+            "text": "--- Page 1 --- NebulaByte: Vector Database Guide NebulaByte Vector Database Technologies What are Vector Databases? Vector databases store and retrieve high-dimensional vector embeddings efficiently. They enable similarity search, which is fundamental for: - Semantic search - Recommendation systems - RAG applications - Image and video search Popular Vector Databases: 1. FAISS: Facebook's library for efficient similarity search 2. Chroma: Open-source embedding database 3. Pinecone: Managed vector database service 4. Weaviate: Open-source vector search engine 5. Milvus: Cloud-native vector database Key Concepts: - Embeddings: Numerical representations of data - Distance Metrics: Cosine similarity, Euclidean distance - Indexing: Optimizing search performance - Dimensionality: Typical ranges from 384 to 1536 FAISS Features: FAISS provides multiple index types including IndexFlatL2 for exact search, IndexIVFFlat for faster approximate search, and IndexHNSW for hierarchical navigable small world graphs.",
+            "metadata": {
+              "category": "NebulaByte"
+            },
+            "distance": 1.3347887992858887
+          }
+        ]
+      }
+    },
+    "final_answer": "To answer what is present inside \"it,\" more context is needed. The available documents do not specify what \"it\" refers to, making it impossible to determine its contents. Please clarify what \"it\" is referring to.",
+    "timestamp": "2025-10-03T15:41:54.675459"
   }
 ]
