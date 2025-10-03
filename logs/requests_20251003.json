@@ -224,5 +224,57 @@
     },
     "final_answer": "The documents do not specify what \"it\" refers to, so I cannot answer what is present inside it.",
     "timestamp": "2025-10-03T15:43:20.557866"
+  },
+  {
+    "query": "What is present inside it",
+    "decision": {
+      "agents": [
+        "PDF_RAG"
+      ],
+      "rationale": "The user is asking about content ('what is present inside it') and a PDF has been uploaded, indicating the query pertains to the PDF's content.",
+      "priority": "PDF_RAG"
+    },
+    "agents_used": [
+      "PDF_RAG"
+    ],
+    "agent_responses": {
+      "PDF_RAG": {
+        "answer": "The documents do not specify what \"it\" refers to, so I cannot answer what is present inside it.",
+        "sources": [
+          "nebulabyte_rag_systems.pdf",
+          "Vishal_wipro.pdf"
+        ],
+        "retrieved_docs": [
+          {
+            "id": 6,
+            "source": "Vishal_wipro.pdf",
+            "chunk_id": 0,
+            "text": "--- Page 1 --- VISHAL GOLHAR +91 8421236102 | vishalgolhar10@gmail.com Linkedin/vishalgolhar Portfolio | Github Career Objective Aspiring Software Engineer with hands-on experience in Python, Java, SQL, and Cloud-based technologies. Skilled in designing, developing, and deploying scalable solutions with strong problem-solving and debugging abilities. Seeking to contribute to Wipro as a Developer by applying expertise in Azure Data Factory, software development lifecycle, and automation to deliver high-quality, client-focused applications. Education G.H. Raisoni College of Engineering (GHRCE), Nagpur Sep 2023 \u2013 May 2026 B.Tech in Artificial Intelligence (Current CGPA: 8.2 / 10) Government Polytechnic, Bramhapuri Nov 2021 \u2013 May 2023 Diploma in Computer Technology Technical Skills \u2022 Programming: Python, Java, C, C++, JavaScript \u2022 Cloud & Data Engineering: Azure Data Factory (ADF), AWS (basic), Data Pipelines \u2022 Databases: MySQL, MongoDB, SQL \u2022 Web Development: HTML, CSS, React.js, Node.js \u2022 Data Analytics & Visualization: Power BI, Pandas, NumPy, Matplotlib \u2022 Tools & Platforms: Git, GitHub, Docker, VS Code \u2022 Concepts: SDLC, OOP, REST APIs, Data Structures & Algorithms Internship Full Stack Web Development Intern (MERN) EY by AICTE | Mar\u2013Apr 2025 | Remote \u2022 Developed a web application prototype using React.js & Node.js, improving usability and performance. \u2022 Worked on UI/UX design, containerization, and cloud deployment, ensuring application scalability. \u2022 Presented the project to EY experts, receiving positive feedback for reliability and maintainability. AI Intern _VOIS | Oct\u2013Nov 2023 | Remote \u2022 Worked on an AI-driven project, applying NLP and ML models to solve real-world challenges. \u2022 Strengthened debugging, self-management, and problem-solving skills through project-based learning. Python Developer Intern iBase Electrosoft LLP | Jul\u2013Aug 2022 | Onsite \u2022 Designed and optimized Python-based ML solutions, improving model efficiency by 15%. \u2022 Collaborated with a team to build data-driven algorithms for predictive analysis. Projects FarmCare AI GitHub: https://github.com/mrvishalg2004/FarmCareAi \u2022 Designed a Crop Recommendation System and Plant Disease Detection using ML models. \u2022 Achieved 96% accuracy in plant disease detection. \u2022 Tech Stack: Python, Scikit-learn, React.js (dashboard), Flask API, MongoDB, Machine Learning. Disease Prediction System \u2022 Built an ML-based application to predict diseases from symptoms, reducing manual diagnosis time by ~40%. \u2022 Tech Stack: Python, Pandas, Scikit-learn, Streamlit. InterviewPro Preview: https://liveinterviewpro.vercel.app/ GitHub: https://github.com/mrvishalg2004/Interviewpro \u2022 AI-powered interview simulation platform. \u2022 Tech Stack: React.js, Node.js, Express.js, MongoDB, Tailwind CSS, Google Gemini. Certifications \u2022 AWS Certified SysOps Administrator \u2013 Associate (SOA-C02) \u2022 AWS Cloud Practitioner Essentials \u2022 RDBMS PostgreSQL Training \u2013 IIT Bombay",
+            "metadata": {},
+            "distance": 1.2297382354736328
+          },
+          {
+            "id": 7,
+            "source": "Vishal_wipro.pdf",
+            "chunk_id": 0,
+            "text": "--- Page 1 --- VISHAL GOLHAR +91 8421236102 | vishalgolhar10@gmail.com Linkedin/vishalgolhar Portfolio | Github Career Objective Aspiring Software Engineer with hands-on experience in Python, Java, SQL, and Cloud-based technologies. Skilled in designing, developing, and deploying scalable solutions with strong problem-solving and debugging abilities. Seeking to contribute to Wipro as a Developer by applying expertise in Azure Data Factory, software development lifecycle, and automation to deliver high-quality, client-focused applications. Education G.H. Raisoni College of Engineering (GHRCE), Nagpur Sep 2023 \u2013 May 2026 B.Tech in Artificial Intelligence (Current CGPA: 8.2 / 10) Government Polytechnic, Bramhapuri Nov 2021 \u2013 May 2023 Diploma in Computer Technology Technical Skills \u2022 Programming: Python, Java, C, C++, JavaScript \u2022 Cloud & Data Engineering: Azure Data Factory (ADF), AWS (basic), Data Pipelines \u2022 Databases: MySQL, MongoDB, SQL \u2022 Web Development: HTML, CSS, React.js, Node.js \u2022 Data Analytics & Visualization: Power BI, Pandas, NumPy, Matplotlib \u2022 Tools & Platforms: Git, GitHub, Docker, VS Code \u2022 Concepts: SDLC, OOP, REST APIs, Data Structures & Algorithms Internship Full Stack Web Development Intern (MERN) EY by AICTE | Mar\u2013Apr 2025 | Remote \u2022 Developed a web application prototype using React.js & Node.js, improving usability and performance. \u2022 Worked on UI/UX design, containerization, and cloud deployment, ensuring application scalability. \u2022 Presented the project to EY experts, receiving positive feedback for reliability and maintainability. AI Intern _VOIS | Oct\u2013Nov 2023 | Remote \u2022 Worked on an AI-driven project, applying NLP and ML models to solve real-world challenges. \u2022 Strengthened debugging, self-management, and problem-solving skills through project-based learning. Python Developer Intern iBase Electrosoft LLP | Jul\u2013Aug 2022 | Onsite \u2022 Designed and optimized Python-based ML solutions, improving model efficiency by 15%. \u2022 Collaborated with a team to build data-driven algorithms for predictive analysis. Projects FarmCare AI GitHub: https://github.com/mrvishalg2004/FarmCareAi \u2022 Designed a Crop Recommendation System and Plant Disease Detection using ML models. \u2022 Achieved 96% accuracy in plant disease detection. \u2022 Tech Stack: Python, Scikit-learn, React.js (dashboard), Flask API, MongoDB, Machine Learning. Disease Prediction System \u2022 Built an ML-based application to predict diseases from symptoms, reducing manual diagnosis time by ~40%. \u2022 Tech Stack: Python, Pandas, Scikit-learn, Streamlit. InterviewPro Preview: https://liveinterviewpro.vercel.app/ GitHub: https://github.com/mrvishalg2004/Interviewpro \u2022 AI-powered interview simulation platform. \u2022 Tech Stack: React.js, Node.js, Express.js, MongoDB, Tailwind CSS, Google Gemini. Certifications \u2022 AWS Certified SysOps Administrator \u2013 Associate (SOA-C02) \u2022 AWS Cloud Practitioner Essentials \u2022 RDBMS PostgreSQL Training \u2013 IIT Bombay",
+            "metadata": {},
+            "distance": 1.2297382354736328
+          },
+          {
+            "id": 1,
+            "source": "nebulabyte_rag_systems.pdf",
+            "chunk_id": 0,
+            "text": "--- Page 1 --- NebulaByte: Retrieval-Augmented Generation NebulaByte RAG Systems Documentation Understanding RAG Retrieval-Augmented Generation (RAG) is a technique that enhances LLMs by providing them with relevant external knowledge. This approach combines the benefits of: - Large language models' natural language understanding - External knowledge bases for factual accuracy - Real-time information retrieval RAG Architecture: 1. Document Ingestion: Convert documents to text 2. Chunking: Break text into manageable pieces 3. Embedding: Convert chunks to vector representations 4. Indexing: Store embeddings in a vector database 5. Retrieval: Find relevant chunks for queries 6. Generation: Use LLM to generate answers Benefits: - Improved factual accuracy - Reduced hallucinations - Domain-specific knowledge - Up-to-date information - Cost-effective compared to fine-tuning Implementation Strategies: Use FAISS or Chroma for vector storage, sentence-transformers for embeddings, and GPT or Claude for generation. Consider chunk size, overlap, and retrieval strategies.",
+            "metadata": {
+              "category": "NebulaByte"
+            },
+            "distance": 1.2790358066558838
+          }
+        ]
+      }
+    },
+    "final_answer": "To answer what is present inside \"it,\" I need more information about what \"it\" refers to. The provided documents do not specify the subject, so I cannot determine its contents.",
+    "timestamp": "2025-10-03T15:48:25.201084"
   }
 ]
