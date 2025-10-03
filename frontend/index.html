@@ -313,7 +313,20 @@
                     body: JSON.stringify({ query })
                 });
                 
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                
+                if (!data || data.error) {
+                    resultsDiv.innerHTML = `
+                        <div class="error">
+                            <strong>Error:</strong> ${data.error || 'Unknown error occurred'}
+                        </div>
+                    `;
+                    return;
+                }
                 
                 displayResults(data);
             } catch (error) {
@@ -330,9 +343,21 @@
         function displayResults(data) {
             const resultsDiv = document.getElementById('results');
             
+            if (!data.agents_used || !data.agents_used.length) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Error:</strong> No agents were able to process your query. Please try again.
+                    </div>
+                `;
+                return;
+            }
+            
             const agentBadges = data.agents_used.map(agent => 
                 `<span class="agent-badge">${agent}</span>`
             ).join('');
+            
+            const finalAnswer = data.final_answer || 'No answer generated';
+            const rationale = (data.decision && data.decision.rationale) || 'No routing decision available';
             
             resultsDiv.innerHTML = `
                 <div class="result-card">
@@ -340,13 +365,13 @@
                         <strong>Agents Used:</strong><br>
                         ${agentBadges}
                         <div class="rationale">
-                            <strong>Routing Decision:</strong> ${data.decision.rationale}
+                            <strong>Routing Decision:</strong> ${rationale}
                         </div>
                     </div>
                     
                     <div class="answer-section">
                         <h3>Answer</h3>
-                        <div class="answer-text">${formatAnswer(data.final_answer)}</div>
+                        <div class="answer-text">${formatAnswer(finalAnswer)}</div>
                     </div>
                 </div>
             `;
