@@ -1,0 +1,120 @@
+[
+  {
+    "query": "What is present inside it",
+    "decision": {
+      "agents": [
+        "PDF_RAG"
+      ],
+      "rationale": "The user is asking about content and a PDF has been uploaded, indicating the query is likely about the PDF's content.",
+      "priority": "PDF_RAG"
+    },
+    "agents_used": [
+      "PDF_RAG"
+    ],
+    "agent_responses": {
+      "PDF_RAG": {
+        "answer": "The question \"What is present inside it\" cannot be answered as the referent for \"it\" is not specified in the question or the provided documents.",
+        "sources": [
+          "nebulabyte_rag_systems.pdf",
+          "Vishal_Golhar_CL.pdf",
+          "nebulabyte_vector_databases.pdf"
+        ],
+        "retrieved_docs": [
+          {
+            "id": 1,
+            "source": "nebulabyte_rag_systems.pdf",
+            "chunk_id": 0,
+            "text": "--- Page 1 --- NebulaByte: Retrieval-Augmented Generation NebulaByte RAG Systems Documentation Understanding RAG Retrieval-Augmented Generation (RAG) is a technique that enhances LLMs by providing them with relevant external knowledge. This approach combines the benefits of: - Large language models' natural language understanding - External knowledge bases for factual accuracy - Real-time information retrieval RAG Architecture: 1. Document Ingestion: Convert documents to text 2. Chunking: Break text into manageable pieces 3. Embedding: Convert chunks to vector representations 4. Indexing: Store embeddings in a vector database 5. Retrieval: Find relevant chunks for queries 6. Generation: Use LLM to generate answers Benefits: - Improved factual accuracy - Reduced hallucinations - Domain-specific knowledge - Up-to-date information - Cost-effective compared to fine-tuning Implementation Strategies: Use FAISS or Chroma for vector storage, sentence-transformers for embeddings, and GPT or Claude for generation. Consider chunk size, overlap, and retrieval strategies.",
+            "metadata": {
+              "category": "NebulaByte"
+            },
+            "distance": 1.2790358066558838
+          },
+          {
+            "id": 5,
+            "source": "Vishal_Golhar_CL.pdf",
+            "chunk_id": 0,
+            "text": "--- Page 1 --- Vishal Golhar Nagpur, Maharashtra, India +91 8421236102 | vishalgolhar10@gmail.com Hiring Manager Wipro Limited Hyderabad, Telangana, India Subject: Application for Developer Role (Req Id: 100326) Dear Hiring Manager, I am writing to express my keen interest in the Developer role at Wipro. With hands-on experience in Python, SQL, Azure Data Factory, and full-stack development, I bring a strong foundation in building scalable applications, optimizing data pipelines, and delivering high-quality software aligned with client requirements. During my internships with EY and AICTE-Shell, I developed end-to-end projects involving ETL processes, dashboards, and automation workflows, where I gained experience in coding, debugging, and documentation across the software development lifecycle. My project on HR Data Analytics Dashboard (Power BI) is a key example of integrating multiple data sources into a streamlined reporting system, improving decision- making efficiency by 25%. At Wipro, I am particularly excited about contributing to projects that require designing, testing, and deploying client-facing applications while ensuring reliability and performance. My technical expertise, combined with strong problem-solving, documentation, and collaboration skills, positions me to add value to your team and deliver solutions with measurable impact. I would be grateful for the opportunity to discuss how my skills and experiences align with the Developer position at Wipro. Thank you for considering my application, and I look forward to contributing to Wipro\u2019s vision of driving innovation and digital transformation. Sincerely, Vishal Golhar",
+            "metadata": {},
+            "distance": 1.3031806945800781
+          },
+          {
+            "id": 2,
+            "source": "nebulabyte_vector_databases.pdf",
+            "chunk_id": 0,
+            "text": "--- Page 1 --- NebulaByte: Vector Database Guide NebulaByte Vector Database Technologies What are Vector Databases? Vector databases store and retrieve high-dimensional vector embeddings efficiently. They enable similarity search, which is fundamental for: - Semantic search - Recommendation systems - RAG applications - Image and video search Popular Vector Databases: 1. FAISS: Facebook's library for efficient similarity search 2. Chroma: Open-source embedding database 3. Pinecone: Managed vector database service 4. Weaviate: Open-source vector search engine 5. Milvus: Cloud-native vector database Key Concepts: - Embeddings: Numerical representations of data - Distance Metrics: Cosine similarity, Euclidean distance - Indexing: Optimizing search performance - Dimensionality: Typical ranges from 384 to 1536 FAISS Features: FAISS provides multiple index types including IndexFlatL2 for exact search, IndexIVFFlat for faster approximate search, and IndexHNSW for hierarchical navigable small world graphs.",
+            "metadata": {
+              "category": "NebulaByte"
+            },
+            "distance": 1.3347887992858887
+          }
+        ]
+      }
+    },
+    "final_answer": "The question \"What is present inside it\" cannot be answered as the referent for \"it\" is not specified.",
+    "timestamp": "2025-10-03T15:40:34.283646"
+  },
+  {
+    "query": "What are AI agents?",
+    "decision": {
+      "agents": [
+        "WEB_SEARCH",
+        "PDF_RAG"
+      ],
+      "rationale": "The query asks for a general definition of 'AI agents', which can be best answered by a web search for current and broad information. Additionally, a PDF has been uploaded, so it's prudent to also check if the document contains relevant information about AI agents, providing a specific context if available.",
+      "priority": "WEB_SEARCH"
+    },
+    "agents_used": [
+      "WEB_SEARCH",
+      "PDF_RAG"
+    ],
+    "agent_responses": {
+      "PDF_RAG": {
+        "answer": "AI agents are autonomous systems capable of perceiving their environment and taking actions to achieve specific goals. Unlike traditional software, they can learn from experience, adapt to new situations, make decisions based on context, and interact with users naturally.",
+        "sources": [
+          "nebulabyte_rag_systems.pdf",
+          "nebulabyte_ai_agents.pdf",
+          "nebulabyte_multiagent_systems.pdf"
+        ],
+        "retrieved_docs": [
+          {
+            "id": 0,
+            "source": "nebulabyte_ai_agents.pdf",
+            "chunk_id": 0,
+            "text": "--- Page 1 --- NebulaByte: Introduction to AI Agents NebulaByte AI Agents Guide What are AI Agents? AI agents are autonomous systems capable of perceiving their environment and taking actions to achieve specific goals. Unlike traditional software, AI agents can: - Learn from experience - Adapt to new situations - Make decisions based on context - Interact with users naturally Key Components: 1. Perception: Gathering information from the environment 2. Reasoning: Processing information to make decisions 3. Action: Executing tasks based on decisions 4. Learning: Improving performance over time Types of AI Agents: - Reactive Agents: Respond to immediate stimuli - Deliberative Agents: Plan actions based on goals - Hybrid Agents: Combine reactive and deliberative approaches - Multi-Agent Systems: Multiple agents working together Applications: AI agents are used in customer service, autonomous vehicles, game playing, personal assistants, and industrial automation. They represent the future of intelligent automation.",
+            "metadata": {
+              "category": "NebulaByte"
+            },
+            "distance": 0.4649163484573364
+          },
+          {
+            "id": 4,
+            "source": "nebulabyte_multiagent_systems.pdf",
+            "chunk_id": 0,
+            "text": "--- Page 1 --- NebulaByte: Multi-Agent System Design NebulaByte Multi-Agent Systems Architecture Introduction to Multi-Agent Systems Multi-agent systems consist of multiple autonomous agents that coordinate to solve complex problems. This approach offers: - Modularity: Each agent handles specific tasks - Scalability: Easy to add new capabilities - Robustness: Failure of one agent doesn't crash system - Specialization: Agents optimize for specific domains Controller Patterns: 1. Centralized: Single controller routes all requests 2. Decentralized: Agents negotiate directly 3. Hierarchical: Multiple levels of control 4. Hybrid: Combine approaches based on needs Agent Communication: Agents exchange information through: - Message passing - Shared memory - Event systems - REST APIs Routing Strategies: - Rule-based: Use explicit conditions - LLM-based: Let AI decide routing - Hybrid: Combine rules with AI reasoning - Learned: Use ML to optimize routing Common Agent Types: - Information Retrieval: Search and fetch data - Processing: Transform and analyze information - Decision Making: Choose actions based on context - Execution: Carry out selected actions Design Considerations: Consider failure modes, logging for transparency, performance optimization, and user experience when building multi-agent systems.",
+            "metadata": {
+              "category": "NebulaByte"
+            },
+            "distance": 0.7413659691810608
+          },
+          {
+            "id": 1,
+            "source": "nebulabyte_rag_systems.pdf",
+            "chunk_id": 0,
+            "text": "--- Page 1 --- NebulaByte: Retrieval-Augmented Generation NebulaByte RAG Systems Documentation Understanding RAG Retrieval-Augmented Generation (RAG) is a technique that enhances LLMs by providing them with relevant external knowledge. This approach combines the benefits of: - Large language models' natural language understanding - External knowledge bases for factual accuracy - Real-time information retrieval RAG Architecture: 1. Document Ingestion: Convert documents to text 2. Chunking: Break text into manageable pieces 3. Embedding: Convert chunks to vector representations 4. Indexing: Store embeddings in a vector database 5. Retrieval: Find relevant chunks for queries 6. Generation: Use LLM to generate answers Benefits: - Improved factual accuracy - Reduced hallucinations - Domain-specific knowledge - Up-to-date information - Cost-effective compared to fine-tuning Implementation Strategies: Use FAISS or Chroma for vector storage, sentence-transformers for embeddings, and GPT or Claude for generation. Consider chunk size, overlap, and retrieval strategies.",
+            "metadata": {
+              "category": "NebulaByte"
+            },
+            "distance": 1.0791420936584473
+          }
+        ]
+      },
+      "WEB_SEARCH": {
+        "summary": "Unable to perform web search at this time.",
+        "results": []
+      }
+    },
+    "final_answer": "AI agents are autonomous systems designed to perceive their environment and take actions to achieve specific goals. They differentiate themselves from traditional software by their ability to learn from experience, adapt to new situations, make decisions based on context, and interact naturally with users.",
+    "timestamp": "2025-10-03T15:40:52.156748"
+  }
+]
