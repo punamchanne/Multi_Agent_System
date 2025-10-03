@@ -1,0 +1,48 @@
+Build a multi-agent AI system that dynamically decides which agent(s) to call for a user query. System must include a Flask or FastAPI backend, a minimal frontend (search box + PDF upload), and use an LLM API (Groq or Google AI Studio) for orchestration/answer synthesis. The RAG/PDF agent must accept uploaded PDFs. The system should be able to query the web and ArXiv as alternatives. The controller must log its decisions and reasoning.
+
+Core agents (minimum 4)
+1. Controller Agent (Decision Maker) — uses an LLM (Groq or Google AI Studio) and/or rule-based logic to route queries; must log decision reasoning.
+2. PDF RAG Agent — accepts PDFs, extracts text, chunks, embeds (FAISS/Chroma), retrieves relevant passages. Include small set of domain PDFs created from NebulaByte dialogs.
+3. Web Search Agent — performs real-time web search (SerpAPI/DuckDuckGo/LangChain), returns top results and short summaries.
+4. ArXiv Agent — queries ArXiv API or HF arxiv_dataset to fetch and summarize recent papers.
+
+Controller behavior (dynamic)
+- Controller analyzes user query and decides: use RAG (PDF), Web Search, ArXiv, or a combination.
+- Example routing rules:
+  • If user uploads a PDF and asks “Summarize this,” call PDF RAG.
+  • If query contains “recent papers” or “arxiv/paper”, call ArXiv Agent.
+  • If query contains “latest news” or “recent developments”, call Web Search Agent.
+- Controller must save a trace: input → decision (with rationale) → agents called → documents retrieved → final answer.
+
+Requirements
+1. Backend — Flask or FastAPI: endpoints /ask, /upload_pdf, /logs. All agent calls routed server-side.
+2. Frontend — Minimal UI: search box, PDF upload widget, result area showing final answer and "Agents used" + brief decision rationale.
+3. LLM API — Controller and Answer Generator must use Groq API or Google AI Studio (Gemini) for routing/synthesis. Include placeholders for API keys and document usage/limits.
+4. RAG implementation — Use FAISS or Chroma embeddings; PDF processing (pdfminer/pyMuPDF); chunking strategy and metadata retention required. Ingest at least 5 small domain PDFs (from NebulaByte dialogs) for demo.
+5. Web & ArXiv — Web Search via SerpAPI/other; ArXiv via API or HF dataset; handle rate limits gracefully and show fallback logs.
+6. Logging & Traceability — Save controller decisions, agent responses, retrieved doc ids, timestamps — accessible via /logs or logs/ file.
+7. Deployment — deploy full stack to Render or HF Spaces (backend + frontend). Provide env var handling for API keys; do not hardcode keys.
+8. Security/Privacy — handle PDF uploads securely (limit size, avoid storing PII long-term; document retention policy).
+9. Report — architecture diagram, agent interfaces, controller logic (rules + LLM prompt), trade-offs, deployment notes, and how NebulaByte PDFs were generated & used.
+
+Deliverables (exact)
+- GitHub repo with modular structure (agents separated), README, tests, and deployment instructions.
+- Deployed demo link (Render or HF Space) showing UI, PDF upload, example queries, and logs view.
+- REPORT.pdf explaining architecture, controller decision logic, safety/privacy handling, and limitations.
+- Small dataset of 5 curated PDFs (generated from NebulaByte dialogs) in sample_pdfs/ for RAG demo.
+- Logs and sample traces showing controller routing and agent interactions.
+
+Evaluation rubric
+- Backend & APIs — 30% (clean endpoints, logs, secure file handling)
+- Multi-agent & controller logic — 30% (correct routing, useful agent cooperation)
+- Frontend UX & transparency — 15% (minimal but clear UI, shows agents used)
+- Deployment & reliability — 15% (running deployed demo + env var handling)
+- Report & code quality — 10% (docs, architecture diagram, tests)
+
+Small checklist (for interns)
+- Can upload PDF and see it ingested into RAG store.
+- Queries route to the correct agent(s) (rule-based + LLM routing).
+- Final answer shows which agent(s) were used and why (controller rationale).
+- Logs show a full trace of the request.
+- Deployment works on Render/HF Spaces and API keys are configured via environment variables.
+- Sample NebulaByte PDFs are in sample_pdfs/ and were used in RAG tests.
