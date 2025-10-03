@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent AI System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .upload-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .upload-label {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .upload-label:hover {
+            background: #5568d3;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-info {
+            margin-top: 10px;
+            color: #28a745;
+            font-weight: 500;
+        }
+        
+        .search-section {
+            margin-bottom: 30px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e1e4e8;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            margin-top: 30px;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .agents-used {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .agent-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .rationale {
+            color: #666;
+            font-style: italic;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .answer-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .answer-section h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .answer-text {
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .logs-button {
+            background: #28a745;
+            margin-top: 20px;
+        }
+        
+        .logs-button:hover {
+            background: #218838;
+        }
+        
+        .logs-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            font-family: monospace;
+        }
+        
+        .error {
+            color: #dc3545;
+            background: #ffe6e6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Multi-Agent AI System</h1>
+        <p class="subtitle">Dynamic routing across PDF RAG, Web Search, and ArXiv agents</p>
+        
+        <div class="upload-section">
+            <label class="upload-label">
+                Upload PDF
+                <input type="file" id="pdfUpload" accept=".pdf">
+            </label>
+            <div id="fileInfo" class="file-info"></div>
+        </div>
+        
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="queryInput" placeholder="Ask a question..." />
+                <button id="askButton">Ask</button>
+            </div>
+        </div>
+        
+        <div id="results" class="results"></div>
+        
+        <button class="logs-button" id="viewLogs">View System Logs</button>
+        <div id="logsSection" class="logs-section" style="display: none;"></div>
+    </div>
+    
+    <script>
+        const API_URL = '';
+        
+        document.getElementById('pdfUpload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const fileInfo = document.getElementById('fileInfo');
+            fileInfo.textContent = 'Uploading...';
+            
+            try {
+                const response = await fetch(API_URL + '/upload_pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    fileInfo.textContent = `✓ ${data.message}`;
+                } else {
+                    fileInfo.textContent = `✗ ${data.error}`;
+                    fileInfo.style.color = '#dc3545';
+                }
+            } catch (error) {
+                fileInfo.textContent = `✗ Upload failed: ${error.message}`;
+                fileInfo.style.color = '#dc3545';
+            }
+        });
+        
+        document.getElementById('askButton').addEventListener('click', askQuestion);
+        document.getElementById('queryInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') askQuestion();
+        });
+        
+        async function askQuestion() {
+            const query = document.getElementById('queryInput').value.trim();
+            if (!query) return;
+            
+            const resultsDiv = document.getElementById('results');
+            const askButton = document.getElementById('askButton');
+            
+            askButton.disabled = true;
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Processing your query...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(API_URL + '/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query })
+                });
+                
+                const data = await response.json();
+                
+                displayResults(data);
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            } finally {
+                askButton.disabled = false;
+            }
+        }
+        
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            
+            const agentBadges = data.agents_used.map(agent => 
+                `<span class="agent-badge">${agent}</span>`
+            ).join('');
+            
+            resultsDiv.innerHTML = `
+                <div class="result-card">
+                    <div class="agents-used">
+                        <strong>Agents Used:</strong><br>
+                        ${agentBadges}
+                        <div class="rationale">
+                            <strong>Routing Decision:</strong> ${data.decision.rationale}
+                        </div>
+                    </div>
+                    
+                    <div class="answer-section">
+                        <h3>Answer</h3>
+                        <div class="answer-text">${formatAnswer(data.final_answer)}</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function formatAnswer(text) {
+            return text.replace(/\n/g, '<br>');
+        }
+        
+        document.getElementById('viewLogs').addEventListener('click', async () => {
+            const logsSection = document.getElementById('logsSection');
+            
+            if (logsSection.style.display === 'none') {
+                logsSection.style.display = 'block';
+                logsSection.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading logs...</p></div>';
+                
+                try {
+                    const response = await fetch(API_URL + '/logs');
+                    const data = await response.json();
+                    
+                    displayLogs(data);
+                } catch (error) {
+                    logsSection.innerHTML = `<div class="error">Failed to load logs: ${error.message}</div>`;
+                }
+            } else {
+                logsSection.style.display = 'none';
+            }
+        });
+        
+        function displayLogs(data) {
+            const logsSection = document.getElementById('logsSection');
+            
+            let logsHTML = '<h3>Controller Decision Logs</h3>';
+            
+            data.controller_logs.slice(-10).reverse().forEach(log => {
+                logsHTML += `
+                    <div class="log-entry">
+                        <strong>Time:</strong> ${log.timestamp}<br>
+                        <strong>Query:</strong> ${log.query}<br>
+                        <strong>Agents:</strong> ${log.decision.agents.join(', ')}<br>
+                        <strong>Rationale:</strong> ${log.decision.rationale}
+                    </div>
+                `;
+            });
+            
+            logsSection.innerHTML = logsHTML;
+        }
+    </script>
+</body>
+</html>
