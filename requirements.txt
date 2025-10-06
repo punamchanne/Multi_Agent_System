@@ -1,0 +1,11 @@
+flask==3.0.0
+flask-cors==4.0.0
+google-generativeai==0.3.2
+faiss-cpu==1.7.4
+duckduckgo-search==3.9.6
+arxiv==1.4.8
+PyMuPDF==1.23.14
+numpy==1.24.3
+python-dotenv==1.0.0
+gradio==4.7.1
+werkzeug==3.0.1

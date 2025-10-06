@@ -252,7 +252,7 @@
     </div>
     
     <script>
-        const API_URL = '';
+        const API_URL = 'http://localhost:8000';
         
         document.getElementById('pdfUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
@@ -270,16 +270,26 @@
                     body: formData
                 });
                 
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
                     fileInfo.textContent = `✓ ${data.message}`;
+                    fileInfo.style.color = '#28a745';
                 } else {
                     fileInfo.textContent = `✗ ${data.error}`;
                     fileInfo.style.color = '#dc3545';
                 }
             } catch (error) {
-                fileInfo.textContent = `✗ Upload failed: ${error.message}`;
+                console.error('Upload error:', error);
+                if (error.message.includes('Failed to fetch')) {
+                    fileInfo.textContent = `✗ Cannot connect to server. Make sure the server is running on port 8000.`;
+                } else {
+                    fileInfo.textContent = `✗ Upload failed: ${error.message}`;
+                }
                 fileInfo.style.color = '#dc3545';
             }
         });

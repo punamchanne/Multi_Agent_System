@@ -2,6 +2,10 @@ import arxiv
 from google import genai
 from google.genai import types
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 

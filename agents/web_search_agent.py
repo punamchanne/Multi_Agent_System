@@ -1,17 +1,33 @@
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 from google import genai
 from google.genai import types
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 class WebSearchAgent:
     def __init__(self):
-        self.ddgs = DDGS()
+        try:
+            self.ddgs = DDGS()
+        except Exception as e:
+            print(f"Error initializing DDGS: {e}")
+            self.ddgs = None
     
     def search(self, query, max_results=5):
+        if self.ddgs is None:
+            return [{"error": "Web search service not available"}]
+            
         try:
-            results = list(self.ddgs.text(query, max_results=max_results))
+            # Try different API variations for ddgs
+            try:
+                results = list(self.ddgs.text(keywords=query, max_results=max_results))
+            except TypeError:
+                # Fallback to older API style
+                results = list(self.ddgs.text(query, max_results=max_results))
             
             formatted_results = []
             for result in results:
@@ -23,6 +39,7 @@ class WebSearchAgent:
             
             return formatted_results
         except Exception as e:
+            print(f"Web search error: {str(e)}")  # Debug logging
             return [{"error": f"Search failed: {str(e)}"}]
     
     def search_and_summarize(self, query, max_results=5):
