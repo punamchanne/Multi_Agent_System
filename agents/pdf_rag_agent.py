@@ -1,148 +1,71 @@
-import os
-import pickle
-import fitz
-import numpy as np
-import faiss
-from dotenv import load_dotenv
-from google import genai
-from google.genai import types
-
-# Load environment variables
-load_dotenv()
-
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+﻿import os
+import google.generativeai as genai
+import PyPDF2
+from io import BytesIO
 
 class PDFRAGAgent:
     def __init__(self, index_path="rag_index"):
-        self.index_path = index_path
         self.documents = []
-        self.index = None
-        self.dimension = 768
+        self.pdf_contents = {}
         
-        if os.path.exists(f"{index_path}.faiss") and os.path.exists(f"{index_path}.pkl"):
-            self.load_index()
-        else:
-            self.index = faiss.IndexFlatL2(self.dimension)
-    
-    def extract_text_from_pdf(self, pdf_path):
+    def add_pdf(self, pdf_path):
         try:
-            doc = fitz.open(pdf_path)
-            text = ""
-            for page_num, page in enumerate(doc):
-                text += f"\n--- Page {page_num + 1} ---\n"
-                text += page.get_text()
-            doc.close()
-            return text
-        except Exception as e:
-            return f"Error extracting text: {str(e)}"
-    
-    def chunk_text(self, text, chunk_size=500, overlap=50):
-        words = text.split()
-        chunks = []
-        for i in range(0, len(words), chunk_size - overlap):
-            chunk = " ".join(words[i:i + chunk_size])
-            if chunk.strip():
-                chunks.append(chunk)
-        return chunks
-    
-    def get_embedding(self, text):
-        try:
-            response = client.models.embed_content(
-                model="models/text-embedding-004",
-                contents=text
-            )
-            embedding = response.embeddings[0].values
-            return np.array(embedding, dtype=np.float32)
-        except Exception as e:
-            print(f"Embedding error: {e}")
-            return np.random.rand(self.dimension).astype(np.float32)
-    
-    def ingest_pdf(self, pdf_path, metadata=None):
-        text = self.extract_text_from_pdf(pdf_path)
-        chunks = self.chunk_text(text)
-        
-        doc_name = os.path.basename(pdf_path)
-        
-        if self.index is None:
-            self.index = faiss.IndexFlatL2(self.dimension)
-        
-        for idx, chunk in enumerate(chunks):
-            embedding = self.get_embedding(chunk)
+            filename = os.path.basename(pdf_path)
             
-            self.index.add(np.array([embedding]))
+            # Extract text from PDF
+            with open(pdf_path, 'rb') as file:
+                pdf_reader = PyPDF2.PdfReader(file)
+                text_content = ""
+                for page in pdf_reader.pages:
+                    text_content += page.extract_text() + "\n"
             
-            doc_entry = {
-                "id": len(self.documents),
-                "source": doc_name,
-                "chunk_id": idx,
-                "text": chunk,
-                "metadata": metadata or {}
-            }
-            self.documents.append(doc_entry)
-        
-        self.save_index()
-        return f"Ingested {len(chunks)} chunks from {doc_name}"
+            # Store the content
+            self.pdf_contents[filename] = text_content
+            self.documents.append({"filename": filename, "path": pdf_path})
+            
+            return f"Successfully processed PDF: {filename} ({len(text_content)} characters extracted)"
+            
+        except Exception as e:
+            return f"Error processing PDF {filename}: {str(e)}"
     
-    def retrieve(self, query, top_k=3):
-        if self.index is None or self.index.ntotal == 0:
-            return []
-        
-        query_embedding = self.get_embedding(query)
-        
-        distances, indices = self.index.search(np.array([query_embedding]), top_k)
-        
-        results = []
-        for idx, distance in zip(indices[0], distances[0]):
-            if idx < len(self.documents):
-                doc = self.documents[idx].copy()
-                doc["distance"] = float(distance)
-                results.append(doc)
-        
-        return results
-    
-    def query(self, user_query, top_k=3):
-        if self.index is None or self.index.ntotal == 0:
-            return {
-                "answer": "No documents in the RAG system. Please upload PDFs first.",
-                "sources": [],
-                "retrieved_docs": []
-            }
-        
-        retrieved_docs = self.retrieve(user_query, top_k)
-        
-        context = "\n\n".join([f"[Source: {doc['source']}]\n{doc['text']}" for doc in retrieved_docs])
-        
-        prompt = f"""Based on the following document excerpts, answer the user's question.
-If the information is not in the documents, say so.
-
-Documents:
-{context}
-
-Question: {user_query}
-
-Answer:"""
+    def query(self, question):
+        if not self.documents:
+            return "No documents uploaded yet. Please upload a PDF first."
         
         try:
-            response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt
-            )
-            answer = response.text
+            # Get API key from environment
+            api_key = os.environ.get("GEMINI_API_KEY")
+            if not api_key:
+                return "Error: GEMINI_API_KEY not found in environment variables"
+                
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel('gemini-2.0-flash')
+            
+            # Combine all PDF contents
+            all_content = ""
+            filenames = []
+            for doc in self.documents:
+                filename = doc["filename"]
+                filenames.append(filename)
+                if filename in self.pdf_contents:
+                    all_content += f"\n\n=== Content from {filename} ===\n"
+                    all_content += self.pdf_contents[filename]
+            
+            # Create prompt for AI
+            prompt = f"""
+Based on the following PDF documents: {', '.join(filenames)}
+
+Document content:
+{all_content[:8000]}
+
+User question: {question}
+
+Please provide a detailed answer based on the PDF content. If the information is not available in the documents, please say so clearly.
+"""
+            
+            # Generate response
+            response = model.generate_content(prompt)
+            return f"Based on uploaded PDF(s) ({', '.join(filenames)}): {response.text}"
+            
         except Exception as e:
-            answer = f"Error generating answer: {str(e)}"
-        
-        return {
-            "answer": answer,
-            "sources": list(set([doc["source"] for doc in retrieved_docs])),
-            "retrieved_docs": retrieved_docs
-        }
-    
-    def save_index(self):
-        faiss.write_index(self.index, f"{self.index_path}.faiss")
-        with open(f"{self.index_path}.pkl", "wb") as f:
-            pickle.dump(self.documents, f)
-    
-    def load_index(self):
-        self.index = faiss.read_index(f"{self.index_path}.faiss")
-        with open(f"{self.index_path}.pkl", "rb") as f:
-            self.documents = pickle.load(f)
+            return f"Error querying documents: {str(e)}"

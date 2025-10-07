@@ -252,7 +252,8 @@
     </div>
     
     <script>
-        const API_URL = 'http://localhost:8000';
+        // Auto-detect the correct API URL based on current location
+        const API_URL = window.location.origin;
         
         document.getElementById('pdfUpload').addEventListener('change', async (e) => {
             const file = e.target.files[0];
@@ -286,7 +287,7 @@
             } catch (error) {
                 console.error('Upload error:', error);
                 if (error.message.includes('Failed to fetch')) {
-                    fileInfo.textContent = `✗ Cannot connect to server. Make sure the server is running on port 8000.`;
+                    fileInfo.textContent = `✗ Cannot connect to server. Please check your connection.`;
                 } else {
                     fileInfo.textContent = `✗ Upload failed: ${error.message}`;
                 }

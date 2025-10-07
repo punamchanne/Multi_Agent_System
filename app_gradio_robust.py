@@ -1,6 +1,5 @@
 import gradio as gr
 import os
-from datetime import datetime
 from dotenv import load_dotenv
 import google.generativeai as genai
 
@@ -32,38 +31,24 @@ class SimpleAgents:
         """Simple PDF query fallback"""
         return f"PDF query response for '{query}': No PDFs have been uploaded yet. Please upload a PDF document to search through it."
 
-# Lazy loading for agents to prevent startup timeouts
-agents_loaded = False
-controller = None
-pdf_rag = None
-web_search = None
-arxiv_agent = None
-
-def initialize_agents():
-    """Initialize agents only when needed"""
-    global agents_loaded, controller, pdf_rag, web_search, arxiv_agent
+# Try to import real agents, fall back to simple ones if they fail
+try:
+    from agents.controller_agent import ControllerAgent
+    from agents.pdf_rag_agent import PDFRAGAgent
+    from agents.web_search_agent import WebSearchAgent
+    from agents.arxiv_agent import ArxivAgent
     
-    if agents_loaded:
-        return True
+    controller = ControllerAgent()
+    pdf_rag = PDFRAGAgent()
+    web_search = WebSearchAgent()
+    arxiv_agent = ArxivAgent()
     
-    try:
-        from agents.controller_agent import ControllerAgent
-        from agents.pdf_rag_agent import PDFRAGAgent
-        from agents.web_search_agent import WebSearchAgent
-        from agents.arxiv_agent import ArxivAgent
-        
-        controller = ControllerAgent()
-        pdf_rag = PDFRAGAgent()
-        web_search = WebSearchAgent()
-        arxiv_agent = ArxivAgent()
-        
-        agents_loaded = True
-        print("✅ All agents loaded successfully")
-        return True
-        
-    except Exception as e:
-        print(f"⚠️ Warning: Could not load agents ({e}), using fallbacks")
-        return False
+    agents_loaded = True
+    print("✅ All agents loaded successfully")
+    
+except Exception as e:
+    print(f"⚠️ Warning: Could not load agents ({e}), using fallbacks")
+    agents_loaded = False
 
 def process_question(question, chat_history):
     """Process user question with robust error handling"""
@@ -71,8 +56,7 @@ def process_question(question, chat_history):
         return chat_history, ""
     
     try:
-        # Initialize agents on first use
-        if initialize_agents():
+        if agents_loaded:
             # Use real agents
             has_pdf = len(getattr(pdf_rag, 'documents', [])) > 0
             
@@ -147,7 +131,7 @@ def upload_pdf(pdf_file):
         return "❌ No file uploaded"
     
     try:
-        if initialize_agents() and hasattr(pdf_rag, 'add_pdf'):
+        if agents_loaded and hasattr(pdf_rag, 'add_pdf'):
             # Use real PDF agent
             filename = os.path.basename(pdf_file.name)
             upload_path = os.path.join('uploads', filename)
@@ -214,7 +198,8 @@ with gr.Blocks(title="PixelPrompter - Multi-Agent AI System") as demo:
             chatbot = gr.Chatbot(
                 label="Conversation",
                 height=500,
-                show_label=False
+                show_label=False,
+                type="messages"
             )
             
             with gr.Row():
@@ -258,197 +243,16 @@ with gr.Blocks(title="PixelPrompter - Multi-Agent AI System") as demo:
         outputs=[chatbot]
     )
 
-# Create Flask app for HTML interface
-from flask import Flask, send_from_directory, request, jsonify
-from flask_cors import CORS
-
-flask_app = Flask(__name__, static_folder='frontend', static_url_path='')
-CORS(flask_app, origins=['*'])
-
-@flask_app.route('/')
-def serve_html():
-    return send_from_directory('frontend', 'index.html')
-
-@flask_app.route('/upload_pdf', methods=['POST'])
-def upload_pdf_flask():
-    try:
-        if 'file' not in request.files:
-            return jsonify({"error": "No file provided"}), 400
-        
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify({"error": "No file selected"}), 400
-        
-        if not file.filename.lower().endswith('.pdf'):
-            return jsonify({"error": "Only PDF files are allowed"}), 400
-        
-        # Initialize agents
-        initialize_agents()
-        
-        if pdf_rag and hasattr(pdf_rag, 'add_pdf'):
-            # Ensure uploads directory exists
-            os.makedirs('uploads', exist_ok=True)
-            
-            # Save file
-            filename = file.filename
-            upload_path = os.path.join('uploads', filename)
-            file.save(upload_path)
-            
-            # Process with PDF agent
-            result = pdf_rag.add_pdf(upload_path)
-            
-            return jsonify({
-                "message": f"✅ Successfully uploaded and processed: {filename}",
-                "filename": filename,
-                "success": True
-            })
-        else:
-            return jsonify({
-                "message": "⚠️ PDF processing not available in demo mode",
-                "success": False
-            })
-            
-    except Exception as e:
-        return jsonify({"error": f"Upload failed: {str(e)}"}), 500
-
-@flask_app.route('/ask', methods=['POST'])
-def ask_flask():
-    data = request.get_json()
-    query = data.get('query', '')
-    
-    if not query:
-        return jsonify({"error": "No query provided"}), 400
-    
-    try:
-        # Initialize agents if not already done
-        initialize_agents()
-        
-        # Determine if we have PDFs
-        has_pdf = hasattr(pdf_rag, 'documents') and len(getattr(pdf_rag, 'documents', [])) > 0
-        
-        # Get routing decision
-        if agents_loaded and controller:
-            decision = controller.analyze_query(query, has_pdf)
-            agents_called = decision.get('agents', [])
-        else:
-            # Fallback decision
-            decision = {"agents": ["WEB_SEARCH"], "reasoning": "Fallback mode"}
-            agents_called = ["WEB_SEARCH"]
-        
-        agent_responses = {}
-        
-        # Call appropriate agents
-        for agent_name in agents_called:
-            try:
-                if agent_name == 'PDF_RAG' and pdf_rag:
-                    agent_responses['PDF_RAG'] = pdf_rag.query(query)
-                elif agent_name == 'WEB_SEARCH' and web_search:
-                    agent_responses['WEB_SEARCH'] = web_search.search(query)
-                elif agent_name == 'ARXIV' and arxiv_agent:
-                    agent_responses['ARXIV'] = arxiv_agent.search_papers(query)
-                else:
-                    # Use fallback
-                    if agent_name == 'PDF_RAG':
-                        agent_responses['PDF_RAG'] = SimpleAgents.pdf_query(query)
-                    elif agent_name == 'WEB_SEARCH':
-                        agent_responses['WEB_SEARCH'] = SimpleAgents.web_search(query)
-                    elif agent_name == 'ARXIV':
-                        agent_responses['ARXIV'] = SimpleAgents.arxiv_search(query)
-            except Exception as e:
-                agent_responses[agent_name] = {"error": str(e)}
-        
-        # Synthesize final answer
-        if agent_responses:
-            context = "\n\n".join([f"{k}: {v}" for k, v in agent_responses.items()])
-            final_answer = f"Based on the analysis:\n\n{context}"
-        else:
-            final_answer = "No agents were able to process your query."
-        
-        response = {
-            "query": query,
-            "decision": decision,
-            "agents_used": agents_called,
-            "agent_responses": agent_responses,
-            "final_answer": final_answer,
-            "timestamp": datetime.now().isoformat()
-        }
-        
-        return jsonify(response)
-        
-    except Exception as e:
-        return jsonify({"error": f"Processing failed: {str(e)}"}), 500
-
-@flask_app.route('/logs', methods=['GET'])
-def get_logs_flask():
-    try:
-        import json
-        
-        # Get controller logs if available
-        controller_logs = []
-        if agents_loaded and controller and hasattr(controller, 'get_logs'):
-            try:
-                controller_logs = controller.get_logs()
-            except:
-                controller_logs = []
-        
-        # Get request logs from files
-        request_logs = []
-        if os.path.exists('logs'):
-            log_files = [f for f in os.listdir('logs') if f.endswith('.json')]
-            for log_file in sorted(log_files, reverse=True)[:5]:
-                try:
-                    with open(os.path.join('logs', log_file), 'r') as f:
-                        request_logs.extend(json.load(f))
-                except:
-                    continue
-        
-        return jsonify({
-            "controller_logs": controller_logs,
-            "request_logs": request_logs[-50:]  # Last 50 entries
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 # Launch the app
 if __name__ == "__main__":
-    print("🚀 Starting PixelPrompter (Dual Interface Version)...")
+    print("🚀 Starting PixelPrompter (Robust Version)...")
     print(f"📁 Current directory: {os.getcwd()}")
     print(f"🔑 API key configured: {'Yes' if api_key else 'No'}")
-    print("🤖 Agents will be loaded on first use (lazy loading)")
+    print(f"🤖 Agents loaded: {'Yes' if agents_loaded else 'No (using fallbacks)'}")
     
-    # Check if we should run Flask (HTML) or Gradio interface
-    # Default to Flask for HF Spaces to match local development UI
-    is_hf_space = os.environ.get('SPACE_ID') is not None
-    interface_mode = os.environ.get('INTERFACE_MODE', 'flask' if is_hf_space else 'gradio')
-    
-    if interface_mode == 'flask':
-        print("🌐 Starting Flask HTML Interface...")
-        # Use port 7860 for HF Spaces, 8000 for local
-        port = 7860 if is_hf_space else 8000
-        debug = not is_hf_space  # Disable debug in production
-        print(f"🌐 Running on port {port}")
-        flask_app.run(host='0.0.0.0', port=port, debug=debug)
-    else:
-        print("🎨 Starting Gradio Interface...")
-        # Check if running on HF Spaces
-        is_hf_space = os.environ.get('SPACE_ID') is not None
-        
-        if is_hf_space:
-            # Optimized configuration for HF Spaces
-            demo.launch(
-                server_name="0.0.0.0",
-                server_port=7860,
-                share=False,
-                show_error=True,
-                inbrowser=False,
-                quiet=False
-            )
-        else:
-            # Local development configuration
-            demo.launch(
-                server_name="127.0.0.1",
-                server_port=7860,
-                share=False,
-                show_error=True,
-                inbrowser=True
-            )
+    demo.launch(
+        server_name="0.0.0.0",
+        server_port=7860,
+        share=False,
+        show_error=True
+    )

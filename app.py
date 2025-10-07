@@ -4,15 +4,18 @@ from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 from agents.controller_agent import ControllerAgent
 from agents.pdf_rag_agent import PDFRAGAgent
 from agents.web_search_agent import WebSearchAgent
 from agents.arxiv_agent import ArxivAgent
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 
 app = Flask(__name__, static_folder='frontend', static_url_path='')
-CORS(app)
+CORS(app, origins='*')
 
 UPLOAD_FOLDER = 'uploads'
 MAX_FILE_SIZE = 16 * 1024 * 1024
@@ -24,7 +27,7 @@ os.makedirs('logs', exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
 controller = ControllerAgent()
 pdf_rag = PDFRAGAgent()
@@ -40,38 +43,45 @@ def index():
 
 @app.route('/upload_pdf', methods=['POST'])
 def upload_pdf():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-    
-    file = request.files['file']
-    
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-    
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+    try:
+        if 'file' not in request.files:
+            return jsonify({"error": "No file part"}), 400
         
-        result = pdf_rag.ingest_pdf(filepath)
+        file = request.files['file']
         
-        return jsonify({
-            "success": True,
-            "message": result,
-            "filename": filename
-        })
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
+        
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            
+            result = pdf_rag.add_pdf(filepath)
+            
+            return jsonify({
+                "success": True,
+                "message": result,
+                "filename": filename
+            })
+        
+        return jsonify({"error": "Invalid file type. Only PDF files are allowed."}), 400
     
-    return jsonify({"error": "Invalid file type. Only PDF files are allowed."}), 400
+    except Exception as e:
+        print(f"Upload error: {str(e)}")  # Log to console for debugging
+        return jsonify({"error": f"Upload failed: {str(e)}"}), 500
 
 @app.route('/ask', methods=['POST'])
 def ask():
+    print(f"Ask route called - request data: {request.json}")  # Debug log
     data = request.json
     query = data.get('query', '')
+    print(f"Query received: {query}")  # Debug log
     
     if not query:
         return jsonify({"error": "No query provided"}), 400
     
-    has_pdf = pdf_rag.index is not None and pdf_rag.index.ntotal > 0
+    has_pdf = len(pdf_rag.documents) > 0
     
     decision = controller.analyze_query(query, has_pdf)
     
@@ -87,14 +97,14 @@ def ask():
     
     if 'WEB_SEARCH' in agents_called:
         try:
-            web_result = web_search.search_and_summarize(query)
+            web_result = web_search.search(query)
             agent_responses['WEB_SEARCH'] = web_result
         except Exception as e:
             agent_responses['WEB_SEARCH'] = {"error": str(e)}
     
     if 'ARXIV' in agents_called:
         try:
-            arxiv_result = arxiv_agent.search_and_summarize(query)
+            arxiv_result = arxiv_agent.search_papers(query)
             agent_responses['ARXIV'] = arxiv_result
         except Exception as e:
             agent_responses['ARXIV'] = {"error": str(e)}
@@ -121,17 +131,25 @@ def synthesize_answer(query, agent_responses):
     context_parts = []
     
     for agent_name, response in agent_responses.items():
-        if 'error' in response:
+        if isinstance(response, dict) and 'error' in response:
             context_parts.append(f"{agent_name}: Error - {response['error']}")
-        elif agent_name == 'PDF_RAG':
-            context_parts.append(f"PDF RAG: {response.get('answer', 'No answer')}")
-        elif agent_name == 'WEB_SEARCH':
-            context_parts.append(f"Web Search: {response.get('summary', 'No summary')}")
-        elif agent_name == 'ARXIV':
-            context_parts.append(f"ArXiv: {response.get('summary', 'No summary')}")
+        elif isinstance(response, str):
+            # Response is a string directly from the agent
+            context_parts.append(f"{agent_name}: {response}")
+        elif isinstance(response, dict):
+            # Response is a dictionary, try to extract meaningful content
+            if agent_name == 'PDF_RAG':
+                context_parts.append(f"PDF RAG: {response.get('answer', response)}")
+            elif agent_name == 'WEB_SEARCH':
+                context_parts.append(f"Web Search: {response.get('summary', response)}")
+            elif agent_name == 'ARXIV':
+                context_parts.append(f"ArXiv: {response.get('summary', response)}")
+            else:
+                context_parts.append(f"{agent_name}: {response}")
+        else:
+            context_parts.append(f"{agent_name}: {str(response)}")
     
-    context = "\n\n".join(context_parts)
-    
+    context = "\n\n".join(context_parts) 
     prompt = f"""You are synthesizing answers from multiple AI agents. Combine the following agent responses into a single, coherent answer to the user's question.
 
 User Question: {query}
@@ -142,10 +160,9 @@ Agent Responses:
 Synthesized Answer:"""
     
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
+        # Use Google Generative AI to synthesize the final answer
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        response = model.generate_content(prompt)
         return response.text or "Unable to synthesize answer."
     except Exception as e:
         return f"Error synthesizing answer: {str(e)}\n\nRaw responses:\n{context}"
@@ -187,4 +204,4 @@ def get_logs():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)
