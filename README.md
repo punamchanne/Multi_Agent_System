@@ -44,7 +44,7 @@ Receive responses that show:
 - Combined insights from multiple agents
 
 
-## 🚀 Live Demo & Deployment
+##  Live Demo & Deployment
 
 ### 🌐 Try It Live
 Experience the Multi-Agent AI System in action:
