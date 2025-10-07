@@ -43,6 +43,24 @@ Receive responses that show:
 - Sources of information
 - Combined insights from multiple agents
 
+
+## 🚀 Live Demo & Deployment
+
+### 🌐 Try It Live
+Experience the Multi-Agent AI System in action:
+
+[![Open in Spaces](https://huggingface.co/datasets/huggingface/badges/raw/main/open-in-hf-spaces-md-dark.svg)](https://huggingface.co/spaces/punamchanne/multi-agent-ai-system)
+
+**Direct Link**: https://huggingface.co/spaces/punamchanne/multi-agent-ai-system
+
+### ✨ What You Can Do:
+- 📄 Upload PDF documents for analysis
+- 🤖 Ask questions using multiple AI agents
+- 🌐 Get real-time web search results
+- 🎓 Access academic papers from ArXiv
+- 📊 View system logs and decision-making process
+
+  
 ## 💡 Example Questions
 
 ### PDF-based Questions
