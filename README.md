@@ -25,7 +25,7 @@ An intelligent AI system that uses multiple specialized agents working together 
 - **💬 Interactive Chat**: Easy-to-use Gradio interface
 - **📚 Sample Documents**: Pre-loaded sample PDFs for testing
 
-## 🚀 How to Use
+##  How to Use
 
 ### 1. Upload Documents
 - Click "Upload PDF File" to upload your own documents
